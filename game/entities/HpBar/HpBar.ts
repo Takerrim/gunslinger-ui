@@ -1,15 +1,13 @@
-import { drawRect } from "~/game/game.helpers"
-import { AbstractGameElement } from "../AbstractGameElement"
-import type { Application } from "pixi.js"
+import { drawRect } from '~/game/game.helpers'
+import { AbstractGameElement } from '../AbstractGameElement'
+import type { Application } from 'pixi.js'
 
 const HP_BAR_WIDTH = 200
 const HP_BAR_HEIGHT = 30
 
 export class HpBar extends AbstractGameElement {
-  static = true
-
   constructor(app: Application) {
-    super(app);
+    super(app)
     this.#renderOutline()
     this.render(100)
   }
@@ -19,8 +17,8 @@ export class HpBar extends AbstractGameElement {
     return {
       x: document.body.clientWidth - (HP_BAR_WIDTH + rightMargin),
       y: 15,
-      width: HP_BAR_WIDTH, 
-      height: HP_BAR_HEIGHT
+      width: HP_BAR_WIDTH,
+      height: HP_BAR_HEIGHT,
     }
   }
 
@@ -32,11 +30,11 @@ export class HpBar extends AbstractGameElement {
       anchor: this.app.stage,
       outline: {
         width: 1,
-        color: '#000000'
-      }
+        color: '#000000',
+      },
     })
   }
- 
+
   render(hp: number) {
     const { x, y, width, height } = this.#computeCoords()
 
@@ -47,6 +45,5 @@ export class HpBar extends AbstractGameElement {
     })
   }
 
-  protected update(): void {
-  }
+  protected update(): void {}
 }

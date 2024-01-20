@@ -1,0 +1,1 @@
+export { IntersectingService } from './IntersectingService'

@@ -1,5 +1,15 @@
+let instance: KeyboardService | null = null
+
 export class KeyboardService {
   #pressedKeysMap: Record<string, boolean> = {}
+
+  private constructor() {}
+
+  static getInstance() {
+    if (instance) return instance
+    instance = new KeyboardService()
+    return instance
+  }
 
   removePressedKey() {
     document.addEventListener('keyup', ({ key }) => {

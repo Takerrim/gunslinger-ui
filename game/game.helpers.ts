@@ -27,5 +27,4 @@ export const drawRect = ({
 
 // export const degreeToRadian = (degree: number) =>  degree * (Math.PI / 180)
 
-export const calculateAngle = (catetX: number, catetY: number) =>
-  Math.atan2(catetY, catetX)
+export const calculateAngle = (dx: number, dy: number) => Math.atan2(dy, dx)

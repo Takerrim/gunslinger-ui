@@ -1,8 +1,13 @@
 <template>
-  <div>
-  </div>
+  <div></div>
 </template>
 
 <script lang="ts">
-import '~/game/bootstrap'
+import { initGame } from '~/game/bootstrap'
+
+export default {
+  setup() {
+    onMounted(initGame)
+  },
+}
 </script>

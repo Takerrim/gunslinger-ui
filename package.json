@@ -12,6 +12,7 @@
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "@nuxtjs/tailwindcss": "^6.9.5",
+    "@types/intersects": "^2.7.5",
     "@types/victor": "^1.1.5",
     "nuxt": "^3.8.1",
     "nuxt-xstate": "^0.6.2",
@@ -21,6 +22,8 @@
   },
   "dependencies": {
     "@pixi-essentials/cull": "^2.0.0",
+    "intersects": "^2.7.2",
+    "pixi-viewport": "^5.0.2",
     "pixi.js": "7.3.3",
     "victor": "^1.1.0"
   }

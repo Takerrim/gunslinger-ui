@@ -36,7 +36,7 @@ export class Shooting extends AbstractGameElement {
   }
 
   get player() {
-    return this.app.stage.getChildByName('player')
+    return this.viewport.getChildByName('player')
   }
 
   fire() {
@@ -45,7 +45,7 @@ export class Shooting extends AbstractGameElement {
 
       this.timerId = setInterval(() => {
         const bullet = Sprite.from(this.spritesheet.textures.bullet1)
-        bullet.position.set(player.position.x, player.position.y)
+        bullet.position.set(player.worldTransform.tx, player.worldTransform.ty)
         bullet.rotation = player.rotation
         bullet.cullable = true
         this.bullets.push(bullet)
@@ -67,7 +67,6 @@ export class Shooting extends AbstractGameElement {
   protected update() {
     if (this.bullets.length) {
       this.bullets.forEach(this.#changeBulletPosition)
-      console.log(this.bullets[0].visible)
       // Culling.cull(this.bullets, this.app.view)
     }
   }
