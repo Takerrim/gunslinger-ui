@@ -14,7 +14,7 @@ import { Shooting } from '../Shooting'
 import { IntersectingService } from '~/game/services/IntersectingService'
 import { KeyboardService } from '~/game/services/KeyboardService'
 
-const VELOCITY = 5
+const VELOCITY = 3
 
 const ANIMATION_SPEED = 0.1666
 
@@ -41,7 +41,7 @@ export class Player extends AbstractGameElement {
       this.shooting = new Shooting(app)
 
       const keyboardService = KeyboardService.getInstance()
-      keyboardService.move(this.#move.bind(this))
+      keyboardService.move()
       keyboardService.removePressedKey()
 
       document.addEventListener('mousemove', (e) => this.#rotate(e))
@@ -101,7 +101,7 @@ export class Player extends AbstractGameElement {
     this.firePlayerSpritesheet.parse()
   }
 
-  #move(key: string) {
+  #move() {
     if (!this.background) return
 
     const { isBoundaryReached } = IntersectingService.getInstance()
@@ -111,54 +111,40 @@ export class Player extends AbstractGameElement {
     )
 
     this.#player.play()
-    switch (key) {
-      case 'up-right':
-        this.#player.position.set(
-          this.#player.x + VELOCITY,
-          this.#player.y - VELOCITY
-        )
-        break
-      case 'up-left':
-        this.#player.position.set(
-          this.#player.x - VELOCITY,
-          this.#player.y - VELOCITY
-        )
-        break
-      case 'down-right':
-        this.#player.position.set(
-          this.#player.x + VELOCITY,
-          this.#player.y + VELOCITY
-        )
-        break
-      case 'down-left':
-        this.#player.position.set(
-          this.#player.x - VELOCITY,
-          this.#player.y + VELOCITY
-        )
-        break
+
+    const { movingDirection } = KeyboardService.getInstance()
+    switch (movingDirection) {
       case 'right-up':
-        this.#player.position.set(
-          this.#player.x + VELOCITY,
-          this.#player.y - VELOCITY
-        )
+        if (outboundType !== 'up' && outboundType !== 'right') {
+          this.#player.position.set(
+            this.#player.x + VELOCITY,
+            this.#player.y - VELOCITY
+          )
+        }
         break
       case 'right-down':
-        this.#player.position.set(
-          this.#player.x + VELOCITY,
-          this.#player.y + VELOCITY
-        )
+        if (outboundType !== 'down' && outboundType !== 'right') {
+          this.#player.position.set(
+            this.#player.x + VELOCITY,
+            this.#player.y + VELOCITY
+          )
+        }
         break
       case 'left-up':
-        this.#player.position.set(
-          this.#player.x - VELOCITY,
-          this.#player.y - VELOCITY
-        )
+        if (outboundType !== 'up' && outboundType !== 'left') {
+          this.#player.position.set(
+            this.#player.x - VELOCITY,
+            this.#player.y - VELOCITY
+          )
+        }
         break
       case 'left-down':
-        this.#player.position.set(
-          this.#player.x - VELOCITY,
-          this.#player.y + VELOCITY
-        )
+        if (outboundType !== 'down' && outboundType !== 'left') {
+          this.#player.position.set(
+            this.#player.x - VELOCITY,
+            this.#player.y + VELOCITY
+          )
+        }
         break
       case 'up':
         if (outboundType !== 'up') this.#player.y = this.#player.y - VELOCITY
@@ -181,5 +167,9 @@ export class Player extends AbstractGameElement {
     this.#player.rotation = calculateAngle(dx, dy)
   }
 
-  protected update(): void {}
+  protected update() {
+    if (KeyboardService.getInstance().isKeyPressed) {
+      this.#move()
+    }
+  }
 }
