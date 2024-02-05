@@ -1,4 +1,4 @@
-import { Graphics } from 'pixi.js'
+import { DisplayObject, Graphics, Point } from 'pixi.js'
 
 export const drawRect = ({
   params,
@@ -28,3 +28,5 @@ export const drawRect = ({
 // export const degreeToRadian = (degree: number) =>  degree * (Math.PI / 180)
 
 export const calculateAngle = (dx: number, dy: number) => Math.atan2(dy, dx)
+
+export const toGlobal = (obj: DisplayObject) => obj.toGlobal(new Point(0, 0))

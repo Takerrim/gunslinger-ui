@@ -1,13 +1,7 @@
-import {
-  Sprite,
-  type Application,
-  Spritesheet,
-  DisplayObject,
-  BaseTexture,
-} from 'pixi.js'
+import { Sprite, type Application, Spritesheet, BaseTexture } from 'pixi.js'
 import { AbstractGameElement } from '../AbstractGameElement'
 import bulletsSpritesheetJson from './bullets.spritesheet.json'
-import { Culling } from '~/game/services/Culling'
+import { toGlobal } from '~/game/game.helpers'
 
 const BULLET_SPEED_FACTOR = 20
 
@@ -15,8 +9,6 @@ export class Shooting extends AbstractGameElement {
   spritesheet!: Spritesheet
 
   timerId: NodeJS.Timeout | null = null
-
-  bullets: Sprite[] = []
 
   constructor(app: Application) {
     super(app)
@@ -28,10 +20,12 @@ export class Shooting extends AbstractGameElement {
     this.spritesheet.parse()
   }
 
-  #changeBulletPosition(bullet: DisplayObject) {
-    bullet.position.set(
-      bullet.position.x + Math.cos(bullet.rotation) * BULLET_SPEED_FACTOR,
-      bullet.position.y + Math.sin(bullet.rotation) * BULLET_SPEED_FACTOR
+  #changeBulletPosition(projectile: Sprite) {
+    projectile.position.set(
+      projectile.position.x +
+        Math.cos(projectile.rotation) * BULLET_SPEED_FACTOR,
+      projectile.position.y +
+        Math.sin(projectile.rotation) * BULLET_SPEED_FACTOR
     )
   }
 
@@ -44,18 +38,25 @@ export class Shooting extends AbstractGameElement {
       const { player } = this
 
       this.timerId = setInterval(() => {
-        const bullet = Sprite.from(this.spritesheet.textures.bullet1)
-        bullet.position.set(player.worldTransform.tx, player.worldTransform.ty)
-        bullet.rotation = player.rotation
-        bullet.cullable = true
-        this.bullets.push(bullet)
-        this.app.stage.addChild(bullet)
+        const projectile = Sprite.from(this.spritesheet.textures.bullet1)
+        const playerGlobalPosition = toGlobal(player)
+        projectile.position.set(playerGlobalPosition.x, playerGlobalPosition.y)
+        projectile.rotation = player.rotation
+        projectile.cullable = true
+        projectile.name = 'projectile'
+        this.app.stage.addChild(projectile)
       }, 100)
     }
   }
 
   get isShooting() {
     return Boolean(this.timerId)
+  }
+
+  get projectiles() {
+    return this.app.stage.children.filter(
+      (child) => child.name === 'projectile'
+    ) as Sprite[]
   }
 
   stop() {
@@ -65,9 +66,14 @@ export class Shooting extends AbstractGameElement {
   }
 
   protected update() {
-    if (this.bullets.length) {
-      this.bullets.forEach(this.#changeBulletPosition)
-      // Culling.cull(this.bullets, this.app.view)
+    if (this.projectiles.length) {
+      this.projectiles.forEach((projectile) => {
+        this.#changeBulletPosition(projectile)
+
+        if (this.isIntersected(projectile) || this.isOutOfMap(projectile)) {
+          projectile.removeFromParent()
+        }
+      })
     }
   }
 }

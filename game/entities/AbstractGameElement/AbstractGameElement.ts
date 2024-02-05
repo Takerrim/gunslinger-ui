@@ -1,6 +1,6 @@
 import type { Viewport } from 'pixi-viewport'
-import type { Application, IPointData } from 'pixi.js'
-import { KeyboardService } from '~/game/services/KeyboardService'
+import type { Application, Sprite } from 'pixi.js'
+import { IntersectionManager } from '~/game/services/IntersectionManager'
 
 export abstract class AbstractGameElement {
   protected app!: Application
@@ -14,7 +14,20 @@ export abstract class AbstractGameElement {
     return this.app.stage.getChildByName('viewport') as Viewport
   }
 
-  protected stageBoundaryReached(position: IPointData) {}
+  protected isOutOfMap(target: Sprite) {
+    const map = this.viewport.getChildByName('background')
+    return Boolean(
+      map &&
+        IntersectionManager.getInstance().testMapCollision(
+          target,
+          map as Sprite
+        )
+    )
+  }
+
+  protected isIntersected(target: Sprite) {
+    return IntersectionManager.getInstance().isIntersected(target)
+  }
 
   /** @description update logic for render tick  */
   protected abstract update(): void

@@ -3,8 +3,6 @@ let instance: KeyboardService | null = null
 export class KeyboardService {
   #pressedKeysMap: Record<string, boolean> = {}
 
-  movingDirection: KeyboardServiceTypes.MovingDirection | null = null
-
   private constructor() {}
 
   static getInstance() {
@@ -17,12 +15,57 @@ export class KeyboardService {
     return Object.keys(this.#pressedKeysMap).length > 0
   }
 
+  get movingDirection(): KeyboardServiceTypes.MovingDirection | null {
+    if (!this.isKeyPressed) {
+      return null
+    }
+
+    switch (true) {
+      case this.#pressedKeysMap.w:
+        if (this.#pressedKeysMap.d) {
+          return 'right-up'
+        }
+
+        if (this.#pressedKeysMap.a) {
+          return 'left-up'
+        }
+
+        return 'up'
+      case this.#pressedKeysMap.s:
+        if (this.#pressedKeysMap.a) {
+          return 'left-down'
+        }
+
+        if (this.#pressedKeysMap.d) {
+          return 'right-down'
+        }
+
+        return 'down'
+      case this.#pressedKeysMap.a:
+        if (this.#pressedKeysMap.w) {
+          return 'left-up'
+        }
+        if (this.#pressedKeysMap.s) {
+          return 'left-down'
+        }
+
+        return 'left'
+      case this.#pressedKeysMap.d:
+        if (this.#pressedKeysMap.w) {
+          return 'right-up'
+        }
+        if (this.#pressedKeysMap.s) {
+          return 'right-down'
+        }
+
+        return 'right'
+    }
+
+    return null
+  }
+
   removePressedKey() {
     document.addEventListener('keyup', ({ key }) => {
-      if (this.movingDirection) {
-        this.movingDirection = null
-      }
-
       if (this.#pressedKeysMap[key]) {
         delete this.#pressedKeysMap[key]
       }
@@ -32,58 +75,6 @@ export class KeyboardService {
   move() {
     document.addEventListener('keypress', ({ key }) => {
       this.#pressedKeysMap[key] = true
-
-      switch (key) {
-        case 'w':
-          if (this.#pressedKeysMap.d) {
-            this.movingDirection = 'right-up'
-            break
-          }
-
-          if (this.#pressedKeysMap.a) {
-            this.movingDirection = 'left-up'
-            break
-          }
-
-          this.movingDirection = 'up'
-          break
-        case 's':
-          if (this.#pressedKeysMap.a) {
-            this.movingDirection = 'left-down'
-            break
-          }
-
-          if (this.#pressedKeysMap.d) {
-            this.movingDirection = 'right-down'
-            break
-          }
-
-          this.movingDirection = 'down'
-          break
-        case 'a':
-          if (this.#pressedKeysMap.w) {
-            this.movingDirection = 'left-up'
-            break
-          }
-          if (this.#pressedKeysMap.s) {
-            this.movingDirection = 'left-down'
-            break
-          }
-
-          this.movingDirection = 'left'
-          break
-        case 'd':
-          if (this.#pressedKeysMap.w) {
-            this.movingDirection = 'right-up'
-            break
-          }
-          if (this.#pressedKeysMap.s) {
-            this.movingDirection = 'right-down'
-            break
-          }
-
-          this.movingDirection = 'right'
-      }
     })
   }
 }

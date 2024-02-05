@@ -1,9 +1,6 @@
 import { Application } from 'pixi.js'
-import { Player } from './entities/Player/Player'
-import { HpBar } from './entities/HpBar'
-import { Cull } from '@pixi-essentials/cull'
-import { Viewport } from 'pixi-viewport'
-import { Background } from './entities/Background'
+// import { Cull } from '@pixi-essentials/cull'
+import { prepareMap } from './prepareMap'
 
 export const initGame = () => {
   const app = new Application({
@@ -16,19 +13,7 @@ export const initGame = () => {
   document.body.appendChild(app.view as HTMLCanvasElement)
   app.renderer.events.cursorStyles.default = 'url(/img/sprCursor.png), auto'
 
-  const viewport = new Viewport({
-    worldWidth: window.document.body.clientWidth,
-    worldHeight: window.document.body.clientHeight,
-    events: app.renderer.events,
-  })
-
-  viewport.name = 'viewport'
-
-  app.stage.addChild(viewport)
-
-  new Background(app)
-  new HpBar(app)
-  new Player(app)
+  prepareMap(app)
 
   // const cull = new Cull({ toggle: 'visible', recursive: true }).addAll(
   //   viewport.children

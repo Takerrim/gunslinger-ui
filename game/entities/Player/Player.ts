@@ -9,9 +9,9 @@ import {
 import playerShootingSpritesheetJson from './playerShooting.spritesheet.json'
 import playerWalkSpritesheetJson from './playerWalk.spritesheet.json'
 import { AbstractGameElement } from '../AbstractGameElement'
-import { calculateAngle } from '~/game/game.helpers'
+import { calculateAngle, toGlobal } from '~/game/game.helpers'
 import { Shooting } from '../Shooting'
-import { IntersectingService } from '~/game/services/IntersectingService'
+import { IntersectionManager } from '~/game/services/IntersectionManager'
 import { KeyboardService } from '~/game/services/KeyboardService'
 
 const VELOCITY = 3
@@ -33,6 +33,8 @@ export class Player extends AbstractGameElement {
   bullets: Sprite[] = []
 
   shooting!: Shooting
+
+  intersected = false
 
   constructor(app: Application) {
     super(app)
@@ -101,13 +103,22 @@ export class Player extends AbstractGameElement {
     this.firePlayerSpritesheet.parse()
   }
 
+  get isReady() {
+    return this.#player !== undefined
+  }
+
   #move() {
     if (!this.background) return
 
-    const { isBoundaryReached } = IntersectingService.getInstance()
-    const outboundType = isBoundaryReached(
-      this.#player.getBounds(),
-      this.background.getBounds()
+    const intersectionManager = IntersectionManager.getInstance()
+
+    const mapOutSide = intersectionManager.testMapCollision(
+      this.#player,
+      this.background
+    )
+
+    const obstacleCollisionSide = intersectionManager.testObstacleCollision(
+      this.#player
     )
 
     this.#player.play()
@@ -115,7 +126,12 @@ export class Player extends AbstractGameElement {
     const { movingDirection } = KeyboardService.getInstance()
     switch (movingDirection) {
       case 'right-up':
-        if (outboundType !== 'up' && outboundType !== 'right') {
+        if (
+          mapOutSide !== 'up' &&
+          mapOutSide !== 'right' &&
+          obstacleCollisionSide !== 'down' &&
+          obstacleCollisionSide !== 'left'
+        ) {
           this.#player.position.set(
             this.#player.x + VELOCITY,
             this.#player.y - VELOCITY
@@ -123,7 +139,12 @@ export class Player extends AbstractGameElement {
         }
         break
       case 'right-down':
-        if (outboundType !== 'down' && outboundType !== 'right') {
+        if (
+          mapOutSide !== 'down' &&
+          mapOutSide !== 'right' &&
+          obstacleCollisionSide !== 'up' &&
+          obstacleCollisionSide !== 'left'
+        ) {
           this.#player.position.set(
             this.#player.x + VELOCITY,
             this.#player.y + VELOCITY
@@ -131,7 +152,12 @@ export class Player extends AbstractGameElement {
         }
         break
       case 'left-up':
-        if (outboundType !== 'up' && outboundType !== 'left') {
+        if (
+          mapOutSide !== 'up' &&
+          mapOutSide !== 'left' &&
+          obstacleCollisionSide !== 'down' &&
+          obstacleCollisionSide !== 'right'
+        ) {
           this.#player.position.set(
             this.#player.x - VELOCITY,
             this.#player.y - VELOCITY
@@ -139,7 +165,12 @@ export class Player extends AbstractGameElement {
         }
         break
       case 'left-down':
-        if (outboundType !== 'down' && outboundType !== 'left') {
+        if (
+          mapOutSide !== 'down' &&
+          mapOutSide !== 'left' &&
+          obstacleCollisionSide !== 'up' &&
+          obstacleCollisionSide !== 'right'
+        ) {
           this.#player.position.set(
             this.#player.x - VELOCITY,
             this.#player.y + VELOCITY
@@ -147,23 +178,28 @@ export class Player extends AbstractGameElement {
         }
         break
       case 'up':
-        if (outboundType !== 'up') this.#player.y = this.#player.y - VELOCITY
+        if (mapOutSide !== 'up' && obstacleCollisionSide !== 'down')
+          this.#player.y = this.#player.y - VELOCITY
         break
       case 'down':
-        if (outboundType !== 'down') this.#player.y = this.#player.y + VELOCITY
+        if (mapOutSide !== 'down' && obstacleCollisionSide !== 'up')
+          this.#player.y = this.#player.y + VELOCITY
         break
       case 'right':
-        if (outboundType !== 'right') this.#player.x = this.#player.x + VELOCITY
+        if (mapOutSide !== 'right' && obstacleCollisionSide !== 'left')
+          this.#player.x = this.#player.x + VELOCITY
         break
       case 'left':
-        if (outboundType !== 'left') this.#player.x = this.#player.x - VELOCITY
+        if (mapOutSide !== 'left' && obstacleCollisionSide !== 'right')
+          this.#player.x = this.#player.x - VELOCITY
         break
     }
   }
 
   #rotate(e: MouseEvent) {
-    const dx = e.x - this.#player.worldTransform.tx
-    const dy = e.y - this.#player.worldTransform.ty
+    const { x, y } = toGlobal(this.#player)
+    const dx = e.x - x
+    const dy = e.y - y
     this.#player.rotation = calculateAngle(dx, dy)
   }
 
