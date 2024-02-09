@@ -117,9 +117,24 @@ export class Player extends AbstractGameElement {
       this.background
     )
 
-    const obstacleCollisionSide = intersectionManager.testObstacleCollision(
+    const obstacleCollisionSide = intersectionManager.testObstacleCollisionSide(
       this.#player
     )
+
+    // switch (obstacleCollisionSide) {
+    //   case 'down':
+    //     this.#player.position.y += 1
+    //     break
+    //   case 'up':
+    //     this.#player.position.y -= 1
+    //     break
+    //   case 'left':
+    //     this.#player.position.x -= 1
+    //     break
+    //   case 'right':
+    //     this.#player.position.x += 1
+    //     break
+    // }
 
     this.#player.play()
 

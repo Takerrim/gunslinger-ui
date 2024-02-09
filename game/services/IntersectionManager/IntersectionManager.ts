@@ -33,38 +33,39 @@ export class IntersectionManager {
   }
 
   /** @description Check whether target has reached boundary with obstacle */
-  testObstacleCollision(target: Sprite) {
-    // const { movingDirection } = KeyboardService.getInstance()
-    // // for (let i = 0; i < this.targets.length; ++i) {
-    // if (
-    //   (movingDirection === 'right' ||
-    //     movingDirection === 'right-up' ||
-    //     movingDirection === 'right-down') &&
-    //   this.isIntersected(target)
-    // )
-    //   return 'left'
-    // if (
-    //   (movingDirection === 'left' ||
-    //     movingDirection === 'left-up' ||
-    //     movingDirection === 'left-down') &&
-    //   this.isIntersected(target)
-    // )
-    //   return 'right'
-    // if (movingDirection === 'down' || this.isIntersected(target)) return 'up'
-    // if (movingDirection === 'up' || this.isIntersected(target)) return 'down'
-    // }
+  testObstacleCollisionSide(target: Sprite) {
+    const { movingDirection } = KeyboardService.getInstance()
+
+    if (
+      (movingDirection === 'right' ||
+        movingDirection === 'right-up' ||
+        movingDirection === 'right-down') &&
+      this.isIntersectedWithObstacles(target)
+    )
+      return 'left'
+    if (
+      (movingDirection === 'left' ||
+        movingDirection === 'left-up' ||
+        movingDirection === 'left-down') &&
+      this.isIntersectedWithObstacles(target)
+    )
+      return 'right'
+    if (movingDirection === 'down' && this.isIntersectedWithObstacles(target))
+      return 'up'
+    if (movingDirection === 'up' && this.isIntersectedWithObstacles(target))
+      return 'down'
   }
 
-  isIntersected = (target: Sprite) => {
-    const targetGlobalPosition = toGlobal(target)
+  isOverlappedWithObstacles = (target: Sprite) => {
+    const { x, y } = toGlobal(target)
     return this.targets.some((intersectionTarget) => {
-      const globalPosition = toGlobal(intersectionTarget)
-      return (
-        targetGlobalPosition.x >= globalPosition.x &&
-        targetGlobalPosition.x <= globalPosition.x + intersectionTarget.width &&
-        targetGlobalPosition.y >= globalPosition.y &&
-        targetGlobalPosition.y <= globalPosition.y + intersectionTarget.height
-      )
+      return intersectionTarget.getBounds().contains(x, y)
+    })
+  }
+
+  isIntersectedWithObstacles = (target: Sprite) => {
+    return this.targets.some((intersectionTarget) => {
+      return intersectionTarget.getBounds().intersects(target.getBounds())
     })
   }
 }

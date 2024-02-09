@@ -26,7 +26,7 @@ export abstract class AbstractGameElement {
   }
 
   protected isIntersected(target: Sprite) {
-    return IntersectionManager.getInstance().isIntersected(target)
+    return IntersectionManager.getInstance().isOverlappedWithObstacles(target)
   }
 
   /** @description update logic for render tick  */
