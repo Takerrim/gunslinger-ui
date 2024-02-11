@@ -1,6 +1,6 @@
 import type { Sprite } from 'pixi.js'
+import { rectangleCollision } from '~/game/collision'
 import { toGlobal } from '~/game/game.helpers'
-import { KeyboardService } from '../KeyboardService'
 
 let instance: IntersectionManager | null = null
 
@@ -34,38 +34,16 @@ export class IntersectionManager {
 
   /** @description Check whether target has reached boundary with obstacle */
   testObstacleCollisionSide(target: Sprite) {
-    const { movingDirection } = KeyboardService.getInstance()
-
-    if (
-      (movingDirection === 'right' ||
-        movingDirection === 'right-up' ||
-        movingDirection === 'right-down') &&
-      this.isIntersectedWithObstacles(target)
-    )
-      return 'left'
-    if (
-      (movingDirection === 'left' ||
-        movingDirection === 'left-up' ||
-        movingDirection === 'left-down') &&
-      this.isIntersectedWithObstacles(target)
-    )
-      return 'right'
-    if (movingDirection === 'down' && this.isIntersectedWithObstacles(target))
-      return 'up'
-    if (movingDirection === 'up' && this.isIntersectedWithObstacles(target))
-      return 'down'
+    for (let i = 0; i < this.targets.length; ++i) {
+      const collisionSide = rectangleCollision(target, this.targets[i])
+      if (collisionSide) return collisionSide
+    }
   }
 
   isOverlappedWithObstacles = (target: Sprite) => {
     const { x, y } = toGlobal(target)
     return this.targets.some((intersectionTarget) => {
       return intersectionTarget.getBounds().contains(x, y)
-    })
-  }
-
-  isIntersectedWithObstacles = (target: Sprite) => {
-    return this.targets.some((intersectionTarget) => {
-      return intersectionTarget.getBounds().intersects(target.getBounds())
     })
   }
 }
